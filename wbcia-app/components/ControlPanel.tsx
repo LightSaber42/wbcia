@@ -97,7 +97,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         {/* Search Results Dropdown */}
         {searchResults.length > 0 && (
           <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-            {searchResults.map(indicator => (
+            {searchResults.sort((a, b) => a.name.localeCompare(b.name)).map(indicator => (
               <div 
                 key={indicator.id}
                 className="p-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center border-b border-gray-100 last:border-none"

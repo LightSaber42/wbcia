@@ -26,7 +26,8 @@ export const fetchCountries = async (): Promise<Country[]> => {
     return data.map((c: any) => ({
       id: c.iso2Code,
       name: c.name
-    })).filter((c: Country) => c.id !== 'XK'); // Filter out Kosovo if problematic or aggregates
+    })).filter((c: Country) => c.id !== 'XK') // Filter out Kosovo if problematic or aggregates
+       .sort((a: Country, b: Country) => a.name.localeCompare(b.name));
   } catch (error) {
     console.error("Error fetching countries", error);
     return [];
