@@ -35,23 +35,49 @@ export const fetchCountries = async (): Promise<Country[]> => {
 
 export const searchIndicators = async (query: string): Promise<Indicator[]> => {
   try {
-    // Fetching from Source 2 (WDI) to get most common ones. 
-    // Optimization: In a real app, we'd cache this or use a more specific search endpoint.
-    // Here we fetch a batch and filter client-side for the prototype to ensure relevance.
-    const response = await axios.get(`${BASE_URL}/indicator?format=json&source=2&per_page=500`);
+    let directMatch: Indicator | null = null;
+    
+    // If query looks like an ID, try direct fetch
+    if (query && query.includes('.') && query.length > 5) {
+      try {
+        const directRes = await axios.get(`${BASE_URL}/indicator/${query}?format=json`);
+        if (directRes.data[1] && directRes.data[1].length > 0) {
+          const item = directRes.data[1][0];
+          directMatch = { id: item.id, name: item.name, sourceNote: item.sourceNote };
+        }
+      } catch (e) {
+        // Ignore direct fetch errors
+      }
+    }
+
+    // Fetching from Source 2 (WDI) with a large page size to get all.
+    // 5000 is enough to cover the ~1500 active WDI indicators.
+    const response = await axios.get(`${BASE_URL}/indicator?format=json&source=2&per_page=5000`);
     const data = response.data[1];
     
-    if (!query) return data.slice(0, 20).map((i: any) => ({ id: i.id, name: i.name, sourceNote: i.sourceNote }));
+    if (!query) {
+      const results = data.slice(0, 20).map((i: any) => ({ id: i.id, name: i.name, sourceNote: i.sourceNote }));
+      return directMatch ? [directMatch, ...results] : results;
+    }
 
     const lowerQuery = query.toLowerCase();
-    return data
+    const filtered = data
       .filter((i: any) => i.name.toLowerCase().includes(lowerQuery) || i.id.toLowerCase().includes(lowerQuery))
       .map((i: any) => ({
         id: i.id,
         name: i.name,
         sourceNote: i.sourceNote
-      }))
-      .slice(0, 20);
+      }));
+
+    // Dedup if direct match is also in list
+    if (directMatch) {
+      const exists = filtered.find((i: Indicator) => i.id === directMatch!.id);
+      if (!exists) {
+        filtered.unshift(directMatch);
+      }
+    }
+
+    return filtered.slice(0, 50);
   } catch (error) {
     console.error("Error fetching indicators", error);
     return [];
