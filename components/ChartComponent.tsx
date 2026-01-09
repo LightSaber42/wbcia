@@ -36,31 +36,35 @@ const CustomYAxisLabel = (props: any) => {
   const { viewBox, color, text, index } = props;
   const { x, y, height } = viewBox;
   
-  // Position labels at the top of the axis, staggered vertically
-  const labelY = y + 20 + (index * 20);
+  // Position labels along the axis, staggered horizontally if needed?
+  // User wants them rotated -90 on the line.
+  // Center them vertically on the axis.
+  const labelY = y + height / 2;
+  const labelX = x + 5; // Slightly right of the axis line
   
   return (
-    <g transform={`translate(${x}, ${labelY})`}>
+    <g transform={`translate(${labelX}, ${labelY}) rotate(-90)`}>
       <rect
-        x="-5"
+        x="-40"
         y="-10"
-        width="150"
-        height="16"
+        width="80"
+        height="14"
         fill="white"
-        fillOpacity="0.8"
+        fillOpacity="0.9"
         stroke={color}
         strokeWidth="0.5"
         rx="2"
       />
       <text
-        x="2"
-        y="2"
+        x="0"
+        y="0"
         fill={color}
-        fontSize="10"
+        fontSize="9"
         fontWeight="bold"
-        textAnchor="start"
+        textAnchor="middle"
+        dominantBaseline="middle"
       >
-        {text.length > 25 ? text.substring(0, 22) + '...' : text}
+        {text.length > 20 ? text.substring(0, 17) + '...' : text}
       </text>
     </g>
   );
