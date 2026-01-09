@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { fetchCountries, searchIndicators, fetchData, Country, Indicator, getRandomColor } from '@/lib/api';
 import ControlPanel from './ControlPanel';
 import ChartComponent from './ChartComponent';
@@ -15,24 +16,91 @@ interface ActiveSeries {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [countries, setCountries] = useState<Country[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<string>("USA"); // Default USA
-  const [source, setSource] = useState("World Bank");
+  
+  // Initialize state from URL or defaults
+  const [selectedCountry, setSelectedCountry] = useState<string>(() => 
+    searchParams.get('country') || "USA"
+  );
+  const [source, setSource] = useState(() => 
+    searchParams.get('source') || "World Bank"
+  );
+  const [dateRange, setDateRange] = useState<[number, number]>(() => {
+    const rangeParam = searchParams.get('range');
+    if (rangeParam) {
+      const [start, end] = rangeParam.split('-').map(Number);
+      if (!isNaN(start) && !isNaN(end)) return [start, end];
+    }
+    return [1960, 2023];
+  });
+
   const [activeSeries, setActiveSeries] = useState<ActiveSeries[]>([]);
-  const [dateRange, setDateRange] = useState<[number, number]>([1960, 2023]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Load countries on mount
   useEffect(() => {
     fetchCountries().then(setCountries);
   }, []);
 
-  // Update data when country changes? 
-  // Requirement says "Select a country", then "Search for dataset".
-  // If country changes, should we clear data or re-fetch for new country?
-  // Usually re-fetch is better UX.
+  // Initialize Active Series from URL
   useEffect(() => {
+    const seriesParam = searchParams.get('series');
+    if (seriesParam && !isInitialized) {
+      const initSeries = async () => {
+        const seriesMetas = seriesParam.split(',').map(s => {
+          const [id, color, encodedName] = s.split('~');
+          return { id, color, name: decodeURIComponent(encodedName) };
+        });
+
+        const loadedSeries = await Promise.all(seriesMetas.map(async (meta) => {
+          const data = await fetchData(selectedCountry, meta.id);
+          return {
+            id: `series_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            indicatorId: meta.id,
+            indicatorName: meta.name,
+            color: meta.color,
+            data: data
+          };
+        }));
+        
+        setActiveSeries(loadedSeries);
+        setIsInitialized(true);
+      };
+      initSeries();
+    } else {
+      setIsInitialized(true);
+    }
+  }, []); // Run once on mount
+
+  // Sync URL with State
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    const params = new URLSearchParams();
+    params.set('country', selectedCountry);
+    params.set('source', source);
+    params.set('range', `${dateRange[0]}-${dateRange[1]}`);
+    
     if (activeSeries.length > 0) {
-      // Reload all active series for the new country
+      const seriesString = activeSeries
+        .map(s => `${s.indicatorId}~${s.color}~${encodeURIComponent(s.indicatorName)}`)
+        .join(',');
+      params.set('series', seriesString);
+    } else {
+      params.delete('series');
+    }
+
+    router.replace(`${pathname}?${params.toString()}`);
+  }, [selectedCountry, source, dateRange, activeSeries, isInitialized, pathname, router]);
+
+
+  // Update data when country changes (only after initialization)
+  useEffect(() => {
+    if (isInitialized && activeSeries.length > 0) {
       const reloadData = async () => {
         const updatedSeriesPromises = activeSeries.map(async (s) => {
           const newData = await fetchData(selectedCountry, s.indicatorId);
@@ -40,13 +108,10 @@ export default function Dashboard() {
         });
         const updatedSeries = await Promise.all(updatedSeriesPromises);
         setActiveSeries(updatedSeries);
-        
-        // Update range if needed, or keep user preference?
-        // Let's keep user preference unless it's empty.
       };
       reloadData();
     }
-  }, [selectedCountry]);
+  }, [selectedCountry]); // Remove activeSeries from dep to avoid loop, we rely on selectedCountry changing
 
   const handleAddSeries = async (indicator: Indicator) => {
     const data = await fetchData(selectedCountry, indicator.id);
