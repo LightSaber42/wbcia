@@ -187,5 +187,3 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 };
 
 export default ControlPanel;
-
-export default ControlPanel;
