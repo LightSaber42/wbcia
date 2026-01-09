@@ -202,51 +202,31 @@ export default function Dashboard() {
   }, [activeSeries]);
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 p-6 min-h-screen bg-gray-50">
-      <div className="w-full md:w-1/3 lg:w-1/4">
-        <ControlPanel 
-          countries={countries}
-          selectedCountry={selectedCountry}
-          onSelectCountry={setSelectedCountry}
-          source={source}
-          onSelectSource={setSource}
-          onAddSeries={handleAddSeries}
-          onSearchIndicators={searchIndicators}
-          dateRange={dateRange}
-          onDateRangeChange={setDateRange}
-        />
-        
-        {/* Active Series List (Legend/Delete) */}
-        <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
-          <h3 className="font-bold mb-2">Active Series</h3>
-          {activeSeries.length === 0 && <p className="text-sm text-gray-500">No series added.</p>}
-          <ul className="space-y-2">
-            {activeSeries.map(s => (
-              <li key={s.id} className="flex items-center justify-between text-sm">
-                <div className="flex items-center">
-                  <span className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: s.color }}></span>
-                  <span className="truncate max-w-[150px]" title={s.indicatorName}>{s.indicatorName}</span>
-                </div>
-                <button 
-                  onClick={() => setActiveSeries(prev => prev.filter(item => item.id !== s.id))}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  &times;
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+    <div className="flex flex-col md:flex-row h-screen bg-gray-50 overflow-hidden">
+      <ControlPanel 
+        countries={countries}
+        selectedCountry={selectedCountry}
+        onSelectCountry={setSelectedCountry}
+        source={source}
+        onSelectSource={setSource}
+        onAddSeries={handleAddSeries}
+        onSearchIndicators={searchIndicators}
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+        activeSeries={activeSeries}
+        onRemoveSeries={(id) => setActiveSeries(prev => prev.filter(item => item.id !== id))}
+      />
 
-      <div className="w-full md:w-2/3 lg:w-3/4">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">World Bank Data Visualizer</h1>
-        <ChartComponent 
-          data={chartData}
-          seriesList={activeSeries}
-          xDomain={dateRange}
-          onDomainChange={setDateRange}
-        />
+      <div className="flex-1 p-4 h-full flex flex-col min-w-0">
+        <h1 className="text-2xl font-bold mb-4 text-gray-800 flex-shrink-0">World Bank Data Visualizer</h1>
+        <div className="flex-1 min-h-0 bg-white rounded-lg shadow-md border border-gray-200">
+          <ChartComponent 
+            data={chartData}
+            seriesList={activeSeries}
+            xDomain={dateRange}
+            onDomainChange={setDateRange}
+          />
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Country, Indicator } from '@/lib/api';
-import { Search, Plus, ChevronUp, ChevronDown } from 'lucide-react';
+import { Search, Plus, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 interface ControlPanelProps {
   countries: Country[];
@@ -14,6 +14,8 @@ interface ControlPanelProps {
   onSearchIndicators: (query: string) => Promise<Indicator[]>;
   dateRange: [number, number];
   onDateRangeChange: (range: [number, number]) => void;
+  activeSeries: any[];
+  onRemoveSeries: (id: string) => void;
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
@@ -25,7 +27,9 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onAddSeries,
   onSearchIndicators,
   dateRange,
-  onDateRangeChange
+  onDateRangeChange,
+  activeSeries,
+  onRemoveSeries
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Indicator[]>([]);
@@ -48,16 +52,42 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   }, [searchQuery, onSearchIndicators]);
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setIsCollapsed(!isCollapsed)}>
-        <h2 className="text-xl font-bold text-gray-900">Controls</h2>
-        <button className="text-gray-500 hover:text-gray-700">
-          {isCollapsed ? <ChevronDown size={24} /> : <ChevronUp size={24} />}
+    <div className={`transition-all duration-300 ease-in-out bg-white shadow-md flex flex-col ${isCollapsed ? 'w-12 p-2 items-center' : 'w-full md:w-1/3 lg:w-1/4 p-6'}`}>
+      <div className={`flex ${isCollapsed ? 'justify-center' : 'justify-between'} items-center mb-4`}>
+        {!isCollapsed && <h2 className="text-xl font-bold text-gray-900 whitespace-nowrap">Controls</h2>}
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="text-gray-500 hover:text-gray-700 p-1 hover:bg-gray-100 rounded"
+          title={isCollapsed ? "Expand" : "Collapse"}
+        >
+          {isCollapsed ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
         </button>
       </div>
       
       {!isCollapsed && (
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto flex-1">
+          {/* Active Series List */}
+          <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+            <h3 className="font-bold text-sm text-gray-700 mb-2">Active Series</h3>
+            {activeSeries.length === 0 && <p className="text-xs text-gray-500">No series added.</p>}
+            <ul className="space-y-2 max-h-40 overflow-y-auto">
+              {activeSeries.map(s => (
+                <li key={s.id} className="flex items-center justify-between text-sm bg-white p-2 rounded border border-gray-100 shadow-sm">
+                  <div className="flex items-center overflow-hidden">
+                    <span className="w-3 h-3 rounded-full mr-2 flex-shrink-0" style={{ backgroundColor: s.color }}></span>
+                    <span className="truncate text-gray-800 text-xs" title={s.indicatorName}>{s.indicatorName}</span>
+                  </div>
+                  <button 
+                    onClick={() => onRemoveSeries(s.id)}
+                    className="text-gray-400 hover:text-red-500 ml-2"
+                  >
+                    <X size={14} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Country Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-1">Country</label>
@@ -96,7 +126,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               <input 
                 type="text" 
                 className="w-full p-2 outline-none bg-transparent text-gray-900 placeholder-gray-500"
-                placeholder="Search indicators (e.g. GDP, Population)..."
+                placeholder="Search indicators..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -126,7 +156,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
           {/* Date Range Inputs */}
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Year Range (X-Axis)</label>
+            <label className="block text-sm font-medium text-gray-900 mb-2">Year Range</label>
             <div className="flex space-x-2">
               <input 
                 type="number" 
@@ -155,5 +185,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
     </div>
   );
 };
+
+export default ControlPanel;
 
 export default ControlPanel;

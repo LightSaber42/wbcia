@@ -34,7 +34,7 @@ const formatYAxis = (tickItem: any) => {
 
 const ChartComponent: React.FC<ChartProps> = ({ data, seriesList, xDomain, onDomainChange }) => {
   return (
-    <div className="w-full h-[600px] bg-white p-4 rounded-lg shadow-md">
+    <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
