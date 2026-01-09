@@ -65,13 +65,10 @@ const ChartComponent: React.FC<ChartProps> = ({ data, seriesList, xDomain, onDom
               orientation="left"
               stroke={series.color}
               tickFormatter={formatYAxis}
-              width={60}
-              label={{ 
-                value: series.indicatorName.substring(0, 15) + '...', 
-                angle: -90, 
-                position: 'insideLeft', 
-                fill: series.color 
-              }}
+              width={45}
+              tick={{ fontSize: 10 }}
+              tickMargin={2}
+              // Removed labels to keep the area compact
             />
           ))}
 
