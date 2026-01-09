@@ -62,14 +62,14 @@ const ChartComponent: React.FC<ChartProps> = ({ data, seriesList, xDomain, onDom
             <YAxis
               key={series.id}
               yAxisId={series.id}
-              orientation={index % 2 === 0 ? "left" : "right"}
+              orientation="left"
               stroke={series.color}
               tickFormatter={formatYAxis}
               width={60}
               label={{ 
                 value: series.indicatorName.substring(0, 15) + '...', 
                 angle: -90, 
-                position: index % 2 === 0 ? 'insideLeft' : 'insideRight', 
+                position: 'insideLeft', 
                 fill: series.color 
               }}
             />
