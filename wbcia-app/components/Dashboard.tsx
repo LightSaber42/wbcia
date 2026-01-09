@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { fetchCountries, searchIndicators, fetchData, Country, Indicator, getRandomColor } from '@/lib/api';
+import { fetchCountries, searchIndicators, fetchData, Country, Indicator, getColorForSeries } from '@/lib/api';
 import ControlPanel from './ControlPanel';
 import ChartComponent from './ChartComponent';
 import { uniq, sortBy } from 'lodash';
@@ -125,7 +125,7 @@ export default function Dashboard() {
       id: `series_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       indicatorId: indicator.id,
       indicatorName: indicator.name,
-      color: getRandomColor(),
+      color: getColorForSeries(activeSeries.length),
       data: data
     };
 

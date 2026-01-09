@@ -18,6 +18,25 @@ export interface DataPoint {
   value: number;
 }
 
+// ColorBrewer categorical palettes
+const COLOR_PALETTES = {
+  set1: [
+    '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00',
+    '#ffff33', '#a65628', '#f781bf', '#999999'
+  ],
+  set2: [
+    '#66c2a5', '#fc8d62', '#a6d854', '#e78ac3', '#ffd92f',
+    '#e5c494', '#8da0cb', '#7570b3'
+  ],
+  paired: [
+    '#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99',
+    '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a',
+    '#ffff99', '#b15928'
+  ]
+};
+
+const CURRENT_PALETTE = COLOR_PALETTES.set1; // Using Set1 as the primary palette
+
 export const fetchCountries = async (): Promise<Country[]> => {
   try {
     const response = await axios.get(`${BASE_URL}/country?format=json&per_page=300`);
@@ -107,11 +126,6 @@ export const fetchData = async (countryCode: string, indicatorId: string): Promi
   }
 };
 
-export const getRandomColor = () => {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
+export const getColorForSeries = (index: number): string => {
+  return CURRENT_PALETTE[index % CURRENT_PALETTE.length];
 }
