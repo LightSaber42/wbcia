@@ -1,62 +1,36 @@
-# WBCIA - World Bank & CIA Data Visualizer
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A Next.js application to visualize World Bank data with multiple series, adaptive search, and interactive charts.
+## Getting Started
 
-## Features
+First, run the development server:
 
-- **Country Selection**: Choose any country from the World Bank database.
-- **Source Selection**: Toggle between World Bank and CIA World Factbook (CIA data currently placeholder).
-- **Adaptive Search**: Search for indicators (datasets) by name (e.g., "GDP", "Population").
-- **Multi-Series Charting**:
-  - Add multiple datasets to the same chart.
-  - Each series has its own color and Y-axis on the left.
-  - Interactive tooltips and legends.
-- **Time Range Control**: 
-  - Change the X-axis year range using text inputs.
-  - Zoom/Brush control on the chart.
-  - Initial range automatically adapts to the data.
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-## Tech Stack
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Charts**: Recharts
-- **Data**: World Bank API (v2)
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Local Development
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-1.  Navigate to the app directory:
-    ```bash
-    cd wbcia-app
-    ```
+## Learn More
 
-2.  Install dependencies:
-    ```bash
-    npm install
-    ```
+To learn more about Next.js, take a look at the following resources:
 
-3.  Run the development server:
-    ```bash
-    npm run dev
-    ```
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-4.  Open [http://localhost:3000](http://localhost:3000) in your browser.
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deployment on Railway.com
+## Deploy on Vercel
 
-1.  Push this repository to GitHub.
-2.  Log in to [Railway.com](https://railway.app/).
-3.  Click "New Project" -> "Deploy from GitHub repo".
-4.  Select this repository.
-5.  Railway will automatically detect the Next.js app.
-6.  Click "Deploy".
-    - Railway automatically handles `npm install`, `npm run build`, and `npm start`.
-    - It respects the `PORT` environment variable.
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-## Project Structure
-
-- `wbcia-app/`: The Next.js application.
-  - `components/`: UI components (Dashboard, Chart, ControlPanel).
-  - `lib/`: API services and utilities.
-  - `app/`: Next.js App Router pages.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
