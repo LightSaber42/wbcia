@@ -129,20 +129,32 @@ export default function Dashboard() {
   }, [selectedCountry, source, dateRange, activeSeries, isInitialized, pathname, router]);
 
 
-  // Update data when country changes (only after initialization)
+  // Reset to default indicators when country changes (only after initialization)
   useEffect(() => {
-    if (isInitialized && activeSeries.length > 0) {
-      const reloadData = async () => {
-        const updatedSeriesPromises = activeSeries.map(async (s) => {
-          const newData = await fetchData(selectedCountry, s.indicatorId);
-          return { ...s, data: newData };
-        });
-        const updatedSeries = await Promise.all(updatedSeriesPromises);
-        setActiveSeries(updatedSeries);
+    if (isInitialized) {
+      const loadDefaults = async () => {
+        const seriesToLoad = DEFAULT_INDICATORS.map((ind, idx) => ({
+          id: ind.id,
+          name: ind.name,
+          color: getColorForSeries(idx)
+        }));
+
+        const loadedSeries = await Promise.all(seriesToLoad.map(async (meta) => {
+          const data = await fetchData(selectedCountry, meta.id);
+          return {
+            id: `series_${Math.random().toString(36).substr(2, 9)}`,
+            indicatorId: meta.id,
+            indicatorName: meta.name,
+            color: meta.color,
+            data: data
+          };
+        }));
+        
+        setActiveSeries(loadedSeries.filter(s => s.data.length > 0));
       };
-      reloadData();
+      loadDefaults();
     }
-  }, [selectedCountry]); // Remove activeSeries from dep to avoid loop, we rely on selectedCountry changing
+  }, [selectedCountry]);
 
   const handleAddSeries = async (indicator: Indicator) => {
     const data = await fetchData(selectedCountry, indicator.id);
