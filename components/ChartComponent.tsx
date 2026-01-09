@@ -32,6 +32,40 @@ const formatYAxis = (tickItem: any) => {
   return tickItem.toFixed(0);
 };
 
+const CustomYAxisLabel = (props: any) => {
+  const { viewBox, color, text, index } = props;
+  const { x, y, height } = viewBox;
+  
+  // Position labels at the top of the axis, staggered vertically
+  const labelY = y + 20 + (index * 20);
+  
+  return (
+    <g transform={`translate(${x}, ${labelY})`}>
+      <rect
+        x="-5"
+        y="-10"
+        width="150"
+        height="16"
+        fill="white"
+        fillOpacity="0.8"
+        stroke={color}
+        strokeWidth="0.5"
+        rx="2"
+      />
+      <text
+        x="2"
+        y="2"
+        fill={color}
+        fontSize="10"
+        fontWeight="bold"
+        textAnchor="start"
+      >
+        {text.length > 25 ? text.substring(0, 22) + '...' : text}
+      </text>
+    </g>
+  );
+};
+
 const ChartComponent: React.FC<ChartProps> = ({ data, seriesList, xDomain, onDomainChange }) => {
   return (
     <div className="w-full h-full">
@@ -39,7 +73,7 @@ const ChartComponent: React.FC<ChartProps> = ({ data, seriesList, xDomain, onDom
         <LineChart
           data={data}
           margin={{
-            top: 20,
+            top: 40, // Increased top margin for staggered labels
             right: 30,
             left: 20,
             bottom: 20,
@@ -68,7 +102,13 @@ const ChartComponent: React.FC<ChartProps> = ({ data, seriesList, xDomain, onDom
               width={45}
               tick={{ fontSize: 10 }}
               tickMargin={2}
-              // Removed labels to keep the area compact
+              label={
+                <CustomYAxisLabel 
+                  color={series.color} 
+                  text={series.indicatorName} 
+                  index={index}
+                />
+              }
             />
           ))}
 
