@@ -92,10 +92,14 @@ const ChartComponent: React.FC<ChartProps> = ({ data, seriesList, xDomain, onDom
             dataKey="year" 
             height={30} 
             stroke="#8884d8"
-            onChange={(range) => {
-              // Optional: Hook this up to text inputs if needed, 
-              // or just let Brush handle the visual zooming.
-              // We rely on the parent's xDomain for the main view.
+            onChange={(e: any) => {
+              if (e.startIndex !== undefined && e.endIndex !== undefined && data && data.length > 0) {
+                const startYear = data[e.startIndex]?.year;
+                const endYear = data[e.endIndex]?.year;
+                if (startYear !== undefined && endYear !== undefined) {
+                  onDomainChange([startYear, endYear]);
+                }
+              }
             }}
           />
         </LineChart>
