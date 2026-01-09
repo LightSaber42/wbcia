@@ -54,7 +54,7 @@ const ChartComponent: React.FC<ChartProps> = ({ data, seriesList, xDomain, onDom
           />
           <Tooltip 
             labelFormatter={(value) => `Year: ${value}`} 
-            formatter={(value: number) => [value.toLocaleString(), '']}
+            formatter={(value: any) => [typeof value === 'number' ? value.toLocaleString() : value, '']}
           />
           <Legend />
           
