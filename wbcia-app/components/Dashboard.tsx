@@ -15,6 +15,19 @@ interface ActiveSeries {
   data: { year: number; value: number }[];
 }
 
+const DEFAULT_INDICATORS = [
+  { id: 'NY.GDP.MKTP.CD', name: 'GDP (current US$)' },
+  { id: 'NY.GDP.MKTP.KD.ZG', name: 'GDP growth (annual %)' },
+  { id: 'SP.POP.TOTL', name: 'Population, total' },
+  { id: 'FP.CPI.TOTL.ZG', name: 'Inflation, consumer prices (annual %)' },
+  { id: 'SL.UEM.TOTL.ZS', name: 'Unemployment, total (% of total labor force)' },
+  { id: 'SP.DYN.LE00.IN', name: 'Life expectancy at birth, total (years)' },
+  { id: 'MS.MIL.XPND.GD.ZS', name: 'Military expenditure (% of GDP)' },
+  { id: 'EN.ATM.CO2E.PC', name: 'CO2 emissions (metric tons per capita)' },
+  { id: 'VC.IHR.PSRC.P5', name: 'Intentional homicides (per 100,000 people)' },
+  { id: 'EG.ELC.ACCS.ZS', name: 'Access to electricity (% of population)' },
+];
+
 export default function Dashboard() {
   const router = useRouter();
   const pathname = usePathname();
@@ -46,35 +59,53 @@ export default function Dashboard() {
     fetchCountries().then(setCountries);
   }, []);
 
-  // Initialize Active Series from URL
+  // Initialize Active Series from URL or Defaults
   useEffect(() => {
     const seriesParam = searchParams.get('series');
-    if (seriesParam && !isInitialized) {
-      const initSeries = async () => {
-        const seriesMetas = seriesParam.split(',').map(s => {
+    
+    const initSeries = async () => {
+      let seriesToLoad = [];
+
+      if (seriesParam) {
+        seriesToLoad = seriesParam.split(',').map(s => {
           const [id, color, encodedName] = s.split('~');
           return { id, color, name: decodeURIComponent(encodedName) };
         });
-
-        const loadedSeries = await Promise.all(seriesMetas.map(async (meta) => {
-          const data = await fetchData(selectedCountry, meta.id);
-          return {
-            id: `series_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            indicatorId: meta.id,
-            indicatorName: meta.name,
-            color: meta.color,
-            data: data
-          };
+      } else {
+        // Use defaults if nothing in URL
+        seriesToLoad = DEFAULT_INDICATORS.map((ind, idx) => ({
+          id: ind.id,
+          name: ind.name,
+          color: getColorForSeries(idx)
         }));
-        
-        setActiveSeries(loadedSeries);
-        setIsInitialized(true);
-      };
-      initSeries();
-    } else {
+      }
+
+      const loadedSeries = await Promise.all(seriesToLoad.map(async (meta) => {
+        const data = await fetchData(selectedCountry, meta.id);
+        return {
+          id: `series_${Math.random().toString(36).substr(2, 9)}`,
+          indicatorId: meta.id,
+          indicatorName: meta.name,
+          color: meta.color,
+          data: data
+        };
+      }));
+      
+      setActiveSeries(loadedSeries.filter(s => s.data.length > 0));
+      
+      // Adapt range to first series if no range in URL
+      if (!searchParams.get('range') && loadedSeries.length > 0 && loadedSeries[0].data.length > 0) {
+        const years = loadedSeries[0].data.map(d => d.year);
+        setDateRange([Math.min(...years), Math.max(...years)]);
+      }
+
       setIsInitialized(true);
+    };
+
+    if (!isInitialized) {
+      initSeries();
     }
-  }, []); // Run once on mount
+  }, [selectedCountry, isInitialized, searchParams]);
 
   // Sync URL with State
   useEffect(() => {
