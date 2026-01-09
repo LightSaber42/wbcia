@@ -20,6 +20,18 @@ interface ChartProps {
   onDomainChange: (domain: [number, number]) => void;
 }
 
+const formatYAxis = (tickItem: any) => {
+  if (typeof tickItem !== 'number') return tickItem;
+  if (tickItem === 0) return '0';
+  
+  const absValue = Math.abs(tickItem);
+  if (absValue >= 1000000000000) return (tickItem / 1000000000000).toFixed(1) + 'T';
+  if (absValue >= 1000000000) return (tickItem / 1000000000).toFixed(1) + 'B';
+  if (absValue >= 1000000) return (tickItem / 1000000).toFixed(1) + 'M';
+  if (absValue >= 1000) return (tickItem / 1000).toFixed(1) + 'k';
+  return tickItem.toFixed(0);
+};
+
 const ChartComponent: React.FC<ChartProps> = ({ data, seriesList, xDomain, onDomainChange }) => {
   return (
     <div className="w-full h-[600px] bg-white p-4 rounded-lg shadow-md">
@@ -40,19 +52,26 @@ const ChartComponent: React.FC<ChartProps> = ({ data, seriesList, xDomain, onDom
             domain={xDomain} 
             allowDataOverflow
           />
-          <Tooltip labelFormatter={(value) => `Year: ${value}`} />
+          <Tooltip 
+            labelFormatter={(value) => `Year: ${value}`} 
+            formatter={(value: number) => [value.toLocaleString(), '']}
+          />
           <Legend />
           
           {seriesList.map((series, index) => (
             <YAxis
               key={series.id}
               yAxisId={series.id}
-              orientation="left"
+              orientation={index % 2 === 0 ? "left" : "right"}
               stroke={series.color}
-              label={{ value: series.indicatorName.substring(0, 15) + '...', angle: -90, position: 'insideLeft', fill: series.color }}
-              // Offset axes to avoid overlap if there are many. 
-              // Recharts doesn't auto-stack left axes well, so we might just overlay them 
-              // or let the user know. For now, simple overlay is standard.
+              tickFormatter={formatYAxis}
+              width={60}
+              label={{ 
+                value: series.indicatorName.substring(0, 15) + '...', 
+                angle: -90, 
+                position: index % 2 === 0 ? 'insideLeft' : 'insideRight', 
+                fill: series.color 
+              }}
             />
           ))}
 
