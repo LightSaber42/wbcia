@@ -48,13 +48,13 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md space-y-6">
-      <h2 className="text-xl font-bold mb-4">Controls</h2>
+      <h2 className="text-xl font-bold mb-4 text-gray-900">Controls</h2>
       
       {/* Country Selection */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+        <label className="block text-sm font-medium text-gray-900 mb-1">Country</label>
         <select 
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full p-2 border border-gray-400 bg-gray-50 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           value={selectedCountry}
           onChange={(e) => onSelectCountry(e.target.value)}
         >
@@ -67,9 +67,9 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
       {/* Source Selection */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+        <label className="block text-sm font-medium text-gray-900 mb-1">Source</label>
         <select 
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full p-2 border border-gray-400 bg-gray-50 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           value={source}
           onChange={(e) => onSelectSource(e.target.value)}
         >
@@ -80,14 +80,14 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
       {/* Dataset Search */}
       <div className="relative">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Add Dataset</label>
-        <div className="flex items-center border border-gray-300 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
-          <div className="p-2 text-gray-500">
+        <label className="block text-sm font-medium text-gray-900 mb-1">Add Dataset</label>
+        <div className="flex items-center border border-gray-400 bg-gray-50 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+          <div className="p-2 text-gray-600">
             <Search size={18} />
           </div>
           <input 
             type="text" 
-            className="w-full p-2 outline-none"
+            className="w-full p-2 outline-none bg-transparent text-gray-900 placeholder-gray-500"
             placeholder="Search indicators (e.g. GDP, Population)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -96,18 +96,18 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         
         {/* Search Results Dropdown */}
         {searchResults.length > 0 && (
-          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
             {searchResults.map(indicator => (
               <div 
                 key={indicator.id}
-                className="p-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
+                className="p-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center border-b border-gray-100 last:border-none"
                 onClick={() => {
                   onAddSeries(indicator);
                   setSearchQuery("");
                   setSearchResults([]);
                 }}
               >
-                <span className="text-sm text-gray-800">{indicator.name}</span>
+                <span className="text-sm text-gray-900">{indicator.name}</span>
                 <Plus size={16} className="text-blue-500" />
               </div>
             ))}
@@ -118,11 +118,11 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
       {/* Date Range Inputs */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Year Range (X-Axis)</label>
+        <label className="block text-sm font-medium text-gray-900 mb-2">Year Range (X-Axis)</label>
         <div className="flex space-x-2">
           <input 
             type="number" 
-            className="w-1/2 p-2 border border-gray-300 rounded-md"
+            className="w-1/2 p-2 border border-gray-400 bg-gray-50 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             value={dateRange[0]}
             onChange={(e) => {
               const val = parseInt(e.target.value);
@@ -132,7 +132,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           />
           <input 
             type="number" 
-            className="w-1/2 p-2 border border-gray-300 rounded-md"
+            className="w-1/2 p-2 border border-gray-400 bg-gray-50 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             value={dateRange[1]}
             onChange={(e) => {
               const val = parseInt(e.target.value);
